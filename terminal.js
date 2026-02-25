@@ -12,7 +12,7 @@ let historyIndex = -1;
 const fileSystem = {
     '/home/user': {'README.txt': 'Hello! This is simulated wsl terminal.', 'projeler': {}, 'belgeler': {}, 'eski_isim.txt': 'This file move with mv.'},
     '/home/user/projeler': {'web_terminali.js': '// This is just simulated file.', 'eski_proje': {}},
-    '/home/user/projeler/eski_proje': {'heart.txt': 'Dude are you still thinking about her?', 'carljung.txt': 'No tree, it is said, can grow to heaven unless its roots reach down to hell.'},
+    '/home/user/projeler/eski_proje': { 'carljung.txt': 'No tree, it is said, can grow to heaven unless its roots reach down to hell.'},
     '/home/user/belgeler': {'notlar.txt': 'Important! Drink water', 'needs.txt': 'Her? Or something diffrent we don\'t know'},
     '/': { 'home': {} }
 };
@@ -306,4 +306,5 @@ window.onload = () => {
     print("------------------------------------------------------------------", true);
     updatePrompt();
     inputElement.focus();
+
 };

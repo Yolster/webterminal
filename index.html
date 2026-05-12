@@ -4,19 +4,20 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Web Terminal</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --color-bg: #1e1e1e;
-            --color-text: #ff00b7;
-            --color-prompt: #87ceeb;
+            --color-bg: #300a24;
+            --color-text: #ffffff;
+            --color-prompt-user: #8ae234;
+            --color-prompt-path: #729fcf;
             --color-error: #ff5555;
         }
         body {
             background-color: var(--color-bg);
             color: var(--color-text);
-            font-family: 'Roboto Mono', monospace;
-            font-size: 14px;
+            font-family: 'Ubuntu Mono', monospace;
+            font-size: 16px;
             margin: 0;
             padding: 0;
             overflow: hidden;
@@ -27,11 +28,17 @@
             padding: 20px;
             box-sizing: border-box;
             overflow-y: scroll;
-            scrollbar-width: none;
-            -ms-overflow-style: none;
+            scrollbar-width: auto;
         }
         #terminal::-webkit-scrollbar {
-            display: none;
+            width: 12px;
+        }
+        #terminal::-webkit-scrollbar-track {
+            background: #230619;
+        }
+        #terminal::-webkit-scrollbar-thumb {
+            background: #50113c;
+            border-radius: 6px;
         }
 
         #output {
@@ -43,9 +50,16 @@
             align-items: center;
         }
         #prompt-display {
-            color: var(--color-prompt);
             margin-right: 5px;
             white-space: pre;
+        }
+        .prompt-user {
+            color: var(--color-prompt-user);
+            font-weight: bold;
+        }
+        .prompt-path {
+            color: var(--color-prompt-path);
+            font-weight: bold;
         }
         #command-input {
             background-color: transparent;
@@ -63,7 +77,7 @@
             color: #ffffff;
         }
         .ls-dir {
-            color: #ffaa00;
+            color: var(--color-prompt-path);
             font-weight: bold;
         }
         .error-message {

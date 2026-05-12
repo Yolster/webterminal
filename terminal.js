@@ -18,14 +18,51 @@ const fileSystem = {
 };
 const availableCommands = [
     'help', 'echo', 'pwd', 'ls', 'cd', 'cat', 'touch', 'mkdir', 'rm', 'mv', 'cp', 
-    'whoami', 'date', 'creator', 'sudo', 'apt-get', 'clear'
+    'whoami', 'date', 'creator', 'sudo', 'apt-get', 'clear', 'history', 'grep', 'uname'
 ];
 // ****************************************************
 
 // **************** APT SIMULATION DATAS ****************
 const aptSimData = {
-    update: ["Hit:1 http://archive.ubuntu.com/ubuntu focal InRelease", "Get:2 http://archive.ubuntu.com/ubuntu focal-updates InRelease [114 kB]", "Reading package lists... Done", "All packages up to date."],
-    upgrade: ["Reading package lists... Done", "Building dependency tree", "2 upgraded, 0 newly installed.", "Do you want to continue? [Y/n] Y", "Fetched 1,234 kB in 1s", "Successfully upgraded 2 packages."]
+    update: [
+        "Hit:1 http://archive.ardabtu.com/ardabtu focal InRelease",
+        "Get:2 http://archive.ardabtu.com/ardabtu focal-updates InRelease [114 kB]",
+        "Get:3 http://archive.ardabtu.com/ardabtu focal-backports InRelease [108 kB]",
+        "Get:4 http://security.ardabtu.com/ardabtu focal-security InRelease [114 kB]",
+        "Get:5 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 Packages [3,012 kB]",
+        "Get:6 http://archive.ardabtu.com/ardabtu focal-updates/universe amd64 Packages [1,118 kB]",
+        "Fetched 4,466 kB in 2s (2,233 kB/s)",
+        "Reading package lists... Done",
+        "Building dependency tree       ",
+        "Reading state information... Done",
+        "5 packages can be upgraded. Run 'apt list --upgradable' to see them."
+    ],
+    upgrade: [
+        "Reading package lists... Done",
+        "Building dependency tree       ",
+        "Reading state information... Done",
+        "Calculating upgrade... Done",
+        "The following packages will be upgraded:",
+        "  libpython3.8 libpython3.8-minimal libpython3.8-stdlib python3.8",
+        "  python3.8-minimal",
+        "5 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.",
+        "Need to get 4,821 kB of archives.",
+        "After this operation, 11.3 kB of additional disk space will be used.",
+        "Do you want to continue? [Y/n] Y",
+        "Get:1 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 python3.8 amd64 3.8.10-0ardabtu1~20.04.8 [388 kB]",
+        "Get:2 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 libpython3.8-stdlib amd64 3.8.10-0ardabtu1~20.04.8 [1,667 kB]",
+        "Get:3 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 libpython3.8 amd64 3.8.10-0ardabtu1~20.04.8 [1,643 kB]",
+        "Get:4 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 python3.8-minimal amd64 3.8.10-0ardabtu1~20.04.8 [1,927 kB]",
+        "Get:5 http://archive.ardabtu.com/ardabtu focal-updates/main amd64 libpython3.8-minimal amd64 3.8.10-0ardabtu1~20.04.8 [736 kB]",
+        "Fetched 4,821 kB in 1s (4,821 kB/s)",
+        "Reading changelogs... Done",
+        "(Reading database ... 208365 files and directories currently installed.)",
+        "Preparing to unpack .../python3.8_3.8.10-0ardabtu1~20.04.8_amd64.deb ...",
+        "Unpacking python3.8 (3.8.10-0ardabtu1~20.04.8) over (3.8.10-0ardabtu1~20.04.7) ...",
+        "Setting up python3.8-minimal (3.8.10-0ardabtu1~20.04.8) ...",
+        "Setting up libpython3.8-stdlib:amd64 (3.8.10-0ardabtu1~20.04.8) ...",
+        "Processing triggers for libc-bin (2.31-0ardabtu9.9) ..."
+    ]
 };
 // ******************************************************
 
@@ -38,7 +75,13 @@ const print = (text, isPrompt = false) => {
     outputDiv.innerHTML += `<div>${text.replace(/\n/g, '<br>')}</div>`;
     terminalDiv.scrollTop = terminalDiv.scrollHeight;
 };
-const updatePrompt = () => { promptDisplay.textContent = `user@web-sim:${currentPath}$ `; };
+const getPromptHTML = () => {
+    const displayPath = currentPath.startsWith('/home/user') 
+        ? currentPath.replace('/home/user', '~') 
+        : currentPath;
+    return `<span class="prompt-user">user@ardabtu</span>:<span class="prompt-path">${displayPath}</span>$ `;
+};
+const updatePrompt = () => { promptDisplay.innerHTML = getPromptHTML(); };
 const getCurrentDirContent = () => fileSystem[currentPath] || fileSystem['/'];
 
 /** Path çözümlemesini basitleştirir ve tek bir yere toplar */
@@ -143,7 +186,7 @@ const getCompletions = (partialCommand) => {
 function handleCommand(command) {
     const trimmedCommand = command.trim();
     if (!trimmedCommand) {
-        print(`<span style="color:var(--color-prompt);">user@web-sim:${currentPath}$</span>`, true);
+        print(`${getPromptHTML()}`, true);
         updatePrompt();
         return;
     }
@@ -157,7 +200,7 @@ function handleCommand(command) {
         return;
     }
 
-    print(`<span style="color:var(--color-prompt);">user@web-sim:${currentPath}$</span> ${trimmedCommand}`, true);
+    print(`${getPromptHTML()}${trimmedCommand}`, true);
 
     const parts = trimmedCommand.split(/\s+/);
     const cmd = parts[0];
@@ -191,7 +234,7 @@ function handleCommand(command) {
     // Diğer Standart Komutlar
     switch (cmd) {
         case 'help':
-            result = `UPDATED COMMAND LIST\n\n\thelp - Shows this list.\n\techo [text] - Return text.\n\tpwd - Shows current directory.\n\tls - List contents.\n\tcd [dir] - Directory change simulation.\n\tcat [file] - Shows file content.\n\ttouch [file] - Create file.\n\tmkdir [dir] - Create directory.\n\trm [item] - Remove file or empty directory.\n\tmv [src] [tgt] - Rename/move.\n\tcp [src] [tgt] - Copy file's content.\n\twhoami - Shows username.\n\tdate - Shows current clock and date.\n\tcreator - Shows the creator.\n\tsudo/apt-get - Simulated package manager.\n\tclear - Clears the screen.`;
+            result = `GNU bash, version 5.0.17(1)-release (x86_64-pc-linux-gnu)\nThese shell commands are defined internally.  Type \`help' to see this list.\n\n\thelp - Shows this list.\n\techo [text] - Return text.\n\tpwd - Shows current directory.\n\tls - List contents.\n\tcd [dir] - Directory change simulation.\n\tcat [file] - Shows file content.\n\ttouch [file] - Create file.\n\tmkdir [dir] - Create directory.\n\trm [item] - Remove file or empty directory.\n\tmv [src] [tgt] - Rename/move.\n\tcp [src] [tgt] - Copy file's content.\n\twhoami - Shows username.\n\tdate - Shows current clock and date.\n\thistory - View command history.\n\tgrep [pattern] [file] - Search in file.\n\tuname - Print system info.\n\tcreator - Shows the creator.\n\tsudo/apt-get - Simulated package manager.\n\tclear - Clears the screen.`;
             break;
         case 'pwd': result = currentPath; break;
         case 'echo': result = args.join(' '); break;
@@ -245,9 +288,27 @@ function handleCommand(command) {
                 if (result === '') result = `${(cmd === 'mv') ? 'Moved' : 'Copied'} '${args[0]}' to '${args[1]}'.`;
             }
             break;
-        case 'whoami': result = 'web-sim-user'; break;
+        case 'whoami': result = 'user'; break;
         case 'date': result = new Date().toLocaleString(); break;
         case 'creator': result = "Arda Aktan"; break;
+        case 'history': result = history.map((h, i) => `  ${i + 1}  ${h}`).join('\n'); break;
+        case 'uname': result = args[0] === '-a' ? 'Linux ardabtu 5.4.0-150-generic #167-Ardabtu SMP Mon May 15 17:35:05 UTC 2023 x86_64 x86_64 x86_64 GNU/Linux' : 'Linux'; break;
+        case 'grep':
+            if (args.length < 2) {
+                result = `<span class="error-message">grep: usage: grep [pattern] [file]</span>`;
+            } else {
+                const pattern = args[0];
+                const fileToSearch = args[1];
+                const fileContent = getCurrentDirContent()[fileToSearch];
+                if (typeof fileContent === 'string') {
+                    const lines = fileContent.split('\n');
+                    const matchedLines = lines.filter(line => line.includes(pattern));
+                    result = matchedLines.join('\n');
+                } else {
+                    result = `<span class="error-message">grep: ${fileToSearch}: No such file or file is a directory</span>`;
+                }
+            }
+            break;
         default: result = `<span class="error-message">bash: ${cmd}: command not found</span>`; break;
     }
 
@@ -284,7 +345,7 @@ inputElement.addEventListener('keydown', function(e) {
             inputElement.value = finalValue;
             
         } else if (completions.length > 1) {
-            print(`<span style="color:var(--color-prompt);">user@web-sim:${currentPath}$</span> ${partialCommand}`, true);
+            print(`${getPromptHTML()}${partialCommand}`, true);
             print(completions.join('    '));
             updatePrompt();
         }
@@ -300,10 +361,14 @@ inputElement.addEventListener('keydown', function(e) {
 
 // Sayfa yüklendiğinde başlatma
 window.onload = () => {
-    print("<span style='color:#ffffff; font-weight:bold;'>WEB TERMINAL WSL</span>", true);
-    print("------------------------------------------------------------------", true);
-    print("Write 'help' to get started!", true);
-    print("------------------------------------------------------------------", true);
+    print(`Welcome to Ardabtu 20.04.6 LTS (GNU/Linux 5.4.0-150-generic x86_64)
+
+ * Documentation:  https://help.ardabtu.com
+ * Management:     https://landscape.canonical.com
+ * Support:        https://ardabtu.com/advantage
+
+This is a simulated web terminal. Type 'help' to get started.
+`, true);
     updatePrompt();
     inputElement.focus();
 
